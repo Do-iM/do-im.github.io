@@ -2,24 +2,21 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 async function decodeData() {
   const params = new URLSearchParams(window.location.search);
-  const data = params.get("data");
   const key = params.get("key");
 
-  var encoded;
-  if (data) {
-    encoded = data
-  } else if (key) {
-    const supabaseUrl = "https://bwrjgecaxvvrhvofxvrn.supabase.co";
-    const supabaseKey = "sb_publishable_KmHDa0nrI3wtxM75kvlh4A_m7pFlAYz";
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    const { data, _ } = await supabase
-      .from("dictionary")
-      .select("value")
-      .eq("key", key)
-      .single();
-    encoded = data.value;
-  }
-  return atob(decodeURIComponent(encoded));
+  const supabaseUrl = "https://bwrjgecaxvvrhvofxvrn.supabase.co";
+  const supabaseKey = "sb_publishable_KmHDa0nrI3wtxM75kvlh4A_m7pFlAYz";
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  const { data, _ } = await supabase
+    .from("dictionary")
+    .select("value")
+    .eq("key", key)
+    .single();
+  const encoded = data.value;
+
+  const binaryString = atob(encoded);
+  const bytes = Uint8Array.from(binaryString, char => char.charCodeAt(0));
+  return new TextDecoder('utf-8').decode(bytes);
 }
 
 function parseCSV(text) {
@@ -47,6 +44,7 @@ const chart = new Chart(ctx, {
   type: "line",
   data: { labels: [], datasets: [] },
   options: {
+    maintainAspectRatio: false,
     animation: { duration: 500 },
     scales: { y: { beginAtZero: true } }
   }
