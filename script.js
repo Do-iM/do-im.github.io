@@ -30,12 +30,17 @@ let seriesNames = [];
 function makeChartData(arr) {
   return {
     labels: arr.map(d => d.date),
-    datasets: seriesNames.map((name, _) => ({
-      label: name,
-      data: arr.map(d => d[name]),
-      borderWidth: 2,
-      tension: 0.2,
-    }))
+    datasets: seriesNames.map(name => {
+      const data = arr.map(d => d[name]);
+      for (let i = 0; i < data.length && data[i] == 0; i++) data[i] = null;
+      for (let i = data.length-1; i >= 0 && data[i] == 0; i--) data[i] = null;
+      return {
+        label: name,
+        data: data,
+        borderWidth: 2,
+        tension: 0.2,
+      }
+    })
   };
 }
 
